@@ -1,4 +1,4 @@
-# RICKDICULOUSLYEASY: 1
+# Rickdiculouslyeasy: 1
 ## Writeup for the RICKDICULOUSLYEASY: 1
 
 Downloadlink : 
