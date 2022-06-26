@@ -1,0 +1,27 @@
+https://www.vulnhub.com/entry/tophatsec-freshly,118/
+
+Run a nmap scan to find for open ports.
+
+Run a gobuster enumeration to find hidden directories.
+
+gobuster dir -u http://192.168.18.29 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x txt,php,html
+
+Found a form login page.
+
+Use SQLmap to find for databases and more clues.
+
+sqlmap -u 'http://192.168.18.29/login.php' --forms --dbs
+
+Found a database called wordpress8080
+
+Found the user and password.
+
+Do another gobuster scan on port 8080 and a login page is found.
+
+Login to the site with the credentials found by SQLmap. 
+
+Edit the theme page and insert a PHP revers shell. 
+
+Start a net cat listener and you will gain a shell.
+
+switch the user with the credentials found and root access is gained.
