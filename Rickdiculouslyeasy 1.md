@@ -1,4 +1,4 @@
-#RickdiculouslyEasy :1
+# RickdiculouslyEasy :1
 <!-- wp:paragraph -->
 <p><a href="https://www.vulnhub.com/entry/rickdiculouslyeasy-1,207/" target="_blank" rel="noreferrer noopener">https://www.vulnhub.com/entry/rickdiculouslyeasy-1,207/</a></p>
 <!-- /wp:paragraph -->
