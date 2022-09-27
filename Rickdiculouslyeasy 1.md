@@ -1,171 +1,446 @@
-# Rickdiculouslyeasy: 1
-## Writeup for the RICKDICULOUSLYEASY: 1
-
-Downloadlink : 
-https://www.vulnhub.com/entry/rickdiculouslyeasy-1,207/
-
-*130 points of flas and root access*
-
-1) Locate vulnerable machine IP address by using *netdiscover*  **Ip : 192.168.23.133** (^ip address will be diffrent on your machine) 
-2) Scan for open ports using *NMAP.* **nmap -sV -p- -v 192.168.23.133**
-
-**-nmap results-**
-Nmap scan report for 192.168.18.29
-
-Host is up (0.00015s latency).
-
-Not shown: 65528 closed ports
-
-PORT      STATE SERVICE VERSION
-
-21/tcp    open  ftp     vsftpd 3.0.3
-
-22/tcp    open  ssh?
-
-80/tcp    open  http    Apache httpd 2.4.27 ((Fedora))
-
-9090/tcp  open  http    Cockpit web service 161 or earlier
-
-13337/tcp open  unknown
-
-22222/tcp open  ssh     OpenSSH 7.5 (protocol 2.0)
-
-60000/tcp open  unknown
-
-Did a scan on the ftp server to get more info. ftp server can be accessed anonymous.
-
-PORT   STATE SERVICE VERSION
-
-21/tcp open  ftp     vsftpd 3.0.3
-
-| ftp-anon: Anonymous FTP login allowed (FTP code 230)
-
-| -rw-r--r--    1 0        0              42 Aug 22  2017 FLAG.txt
-
-|_drwxr-xr-x    2 0        0               6 Feb 12  2017 pub
-
-ftp 192.168.18.29 Login: anonymous password: *create a password*
-
-get FLAG.txt 
-
-cat file to get the flag
-
-:pirate_flag: FLAG{Whoa this is unexpected} - 10 Points
-
-use dirb tool to scan 
-
-found http: //192.168.18.29/passwords/
-
-click on the flag file
-
-:pirate_flag: FLAG{Yeah d- just don't do it.} - 10 Points
-
-click the passwords.html and inspect to find a potential password = winter
-
-enter the url http: //192.168.18.29/9090 to get the next flag
-
-:pirate_flag: FLAG {There is no Zeus, in your face!} - 10 Points
-
-use netcat again on port 60000 to get a reverse shell and cat the FLAG.txt
-
-:pirate_flag: FLAG{Flip the pickle Morty!} - 10 Points 
-
-use netcat to enter port 13337 (nc 192.16.29 13337) to get a flag
-
-:pirate_flag: FLAG:{TheyFoundMyBackDoorMorty}-10Points
-
-From the dirb tool we found http: //192.168.18.29/robots.txt
-
-Which gave us 3 links:
-
-/cgi-bin/root_shell.cgi -Not working-
-
-/cgi-bin/tracertool.cgi
-
-/cgi-bin/*
-
-/cgi-bin/tracertool.cgi enables a trace route tool. Use the url to inject less ; less /etc/passwd/ to get a list of users
-
-Following list of users were found:
-
-RickSanchez:x :1000:1000::/home/RickSanchez:/bin/bash
-
-Morty:x :1001:1001::/home/Morty:/bin/bash
-
-Summer:x :1002:1002::/home/Summer:/bin/bash
-
-create a user.txt file with RickSanchez , Morty , Summer 
-
-use hydra tool to crack the password by connecting via ssh = hydra -L user.txt -p winter -s 22222 192.168.18.29 ssh 
-
-[22222][ssh] host: 192.168.18.29   login: Summer   password: winter
-
-connect to ssh = ssh -p 22222 Summer@192.168.18.29
-
- less FLAG.txt
-
-:pirate_flag: FLAG{Get off the high road Summer!} - 10 Points
-
-Explore /home to find other users
-
-cd to Morty and download the jpg file into local machine = cp -P 22222 Summer@192.168.18.29:/home/Morty/Safe_Password.jpg picture.jpg  
-
-use the strings tool and grep to get clues = strings picture.jpg | grep word
-                                                           127 ⨯
-8 The Safe Password: File: /home/Morty/journal.txt.zip. Password: Meeseek
-
-download the zip file to local machine = scp -P 22222 Summer@192.168.18.29:/home/Morty/journal.txt.zip test.zip
-
-cat unzipped file to get flag
-
-:pirate_flag: FLAG: {131333} - 20 Points
-
-cd to RickSanchez and move the safe exe file Summer diretory 
-
-excute ./safe 
-
-Past Rick to present Rick, tell future Rick to use GOD DAMN COMMAND LINE AAAAAHHAHAGGGGRRGUMENTS!
-
-try the previous flags numbers as arguments 
-
-flag unlocked
-
-:pirate_flag: FLAG{And Awwwaaaaayyyy we Go!} - 20 Points
-
-found some clues for the next flag:
-
-1 uppercase character
-
-1 digit
-
-One of the words in my old bands name.
-
-Use google search to find Rick Sanchez band = The Flesh Curtains
-
-Write a python scrip to generate a password list with clues: 
-
-import string
-
-words = ['The', 'Flesh', 'Curtains']
-
-for i in string.ascii_uppercase:
-
-    for j in string.digits:
-
-        for k in words:
-
-            print('{0}{1}{2}'.format(i, j, k))
-
-Create a text file with generated password
-
-use hydra to crack password = hydra -l RickSanchez -P passwordlist.txt -T4 -s 22222 192.168.18.29 ssh
-
-enter RickSnachez user and sudo su to gain access to root
-
-cd to root folder and cat file for final flag
-
-:pirate_flag: FLAG: {Ionic Defibrillator} - 30 points
-
-
-
-
+#RickdiculouslyEasy :1
+<!-- wp:paragraph -->
+<p><a href="https://www.vulnhub.com/entry/rickdiculouslyeasy-1,207/" target="_blank" rel="noreferrer noopener">https://www.vulnhub.com/entry/rickdiculouslyeasy-1,207/</a></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph {"align":"center","backgroundColor":"vivid-purple","fontSize":"small"} -->
+<p class="has-text-align-center has-vivid-purple-background-color has-background has-small-font-size">Review</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul><!-- wp:list-item -->
+<li>Explore the various ports to find flags</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>FTP server can be accessed anonymously for a flag</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Web server enumeration will lead to a password and flag</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Use command injection to find users </li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Access a user and examine other users files </li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Transfer other user's file to attacking machine to find for clues</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Create a password list with the clues given</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Check sudo permissions for privelidge exploitation</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>Use Hacktricks for root access</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph {"align":"center","backgroundColor":"luminous-vivid-amber","fontSize":"small"} -->
+<p class="has-text-align-center has-luminous-vivid-amber-background-color has-background has-small-font-size"><strong>Enumeration</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Run nmap scan to find for open ports.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5277,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-529.png?w=670" alt="" class="wp-image-5277"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":5281,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-531.png?w=747" alt="" class="wp-image-5281"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":5282,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-532.png?w=731" alt="" class="wp-image-5282"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>FTP Server</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Able to access it annoymously.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5293,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-539.png?w=697" alt="" class="wp-image-5293"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Found a flag.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5294,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-540.png?w=561" alt="" class="wp-image-5294"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:group -->
+<div class="wp-block-group"><!-- wp:paragraph -->
+<p>Port 9090</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5301,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-543.png?w=1024" alt="" class="wp-image-5301"/><figcaption class="wp-element-caption">Found a flag</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Unable to do much with he website as there is no login or password input.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>Port 13337</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5303,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-544.png?w=523" alt="" class="wp-image-5303"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>Port 60000</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Netcat into the port to find a flag</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5309,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-547.png?w=567" alt="" class="wp-image-5309"/></figure>
+<!-- /wp:image --></div>
+<!-- /wp:group -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>Port 80</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5279,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-530.png?w=1024" alt="" class="wp-image-5279"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Run a gobuster scan to find for hidden directories. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5284,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-533.png?w=1024" alt="" class="wp-image-5284"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>/robots.txt</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5286,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-534.png?w=519" alt="" class="wp-image-5286"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":5298,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-541.png?w=617" alt="" class="wp-image-5298"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":5300,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-542.png?w=709" alt="" class="wp-image-5300"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Let's test for command injection.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5310,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-548.png?w=741" alt="" class="wp-image-5310"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Able to find a password list but when we cat we get a literal picture of a cat. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5312,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-549.png?w=455" alt="" class="wp-image-5312"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Tried to use alternatives like head and tail and no luck.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5314,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-550.png?w=458" alt="" class="wp-image-5314"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Use the tail command to check for users.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5315,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-551.png?w=548" alt="" class="wp-image-5315"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>/passwords</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5287,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-535.png?w=557" alt="" class="wp-image-5287"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Found a flag.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5288,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-536.png?w=644" alt="" class="wp-image-5288"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Found a password in the source code.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5290,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-537.png?w=778" alt="" class="wp-image-5290"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":5291,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-538.png?w=510" alt="" class="wp-image-5291"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph {"align":"center","backgroundColor":"vivid-cyan-blue","fontSize":"small"} -->
+<p class="has-text-align-center has-vivid-cyan-blue-background-color has-background has-small-font-size"><strong>Foothold</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Let's try to ssh into the summer user with the password found.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5317,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-552.png?w=1024" alt="" class="wp-image-5317"/><figcaption class="wp-element-caption">access gained</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Found a flag</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5321,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-554.png?w=711" alt="" class="wp-image-5321"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>Head to the Morty directory and there are two files. Let's send this file over to the attacking machine to examine.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5322,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-555.png?w=717" alt="" class="wp-image-5322"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>In the attacking machine , I use cat on the image to find a password.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5324,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-556.png?w=1024" alt="" class="wp-image-5324"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Use that password to unzip the zipped file and you will get a cluse and a flag.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5326,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-557.png?w=1024" alt="" class="wp-image-5326"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>Head to RickSanchez folder and get the safe file into your attacking machine. Run the executable and use the previous flag number as an argument. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5327,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-558.png?w=1024" alt="" class="wp-image-5327"/><figcaption class="wp-element-caption">we get a flag and a clue for a password</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>Cracking Rick's password</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>I googled Rick's band.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5329,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-559.png?w=736" alt="" class="wp-image-5329"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Now we need to generate a passwordlist that contains clues given to us.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Let's use maskprocessor aka m64 to generate a wordlist</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5334,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-561.png?w=942" alt="" class="wp-image-5334"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":5335,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-562.png?w=573" alt="" class="wp-image-5335"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:image {"id":5333,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-560.png?w=690" alt="" class="wp-image-5333"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>After some time I'm unable to get the password. I tried again with capital letters for the band's name.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5337,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-563.png?w=549" alt="" class="wp-image-5337"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Cracked the password !</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5339,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-564.png?w=1024" alt="" class="wp-image-5339"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>ssh into the new user</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5421,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-587.png?w=1024" alt="" class="wp-image-5421"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Check for sudo permissions</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5423,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-588.png?w=808" alt="" class="wp-image-5423"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator has-alpha-channel-opacity"/>
+<!-- /wp:separator -->
+
+<!-- wp:paragraph {"align":"center","backgroundColor":"black","textColor":"white","fontSize":"small"} -->
+<p class="has-text-align-center has-white-color has-black-background-color has-text-color has-background has-small-font-size"><strong>Privilege escalation</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5425,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-589.png?w=800" alt="" class="wp-image-5425"/><figcaption class="wp-element-caption">Used hacktricks for some clues.</figcaption></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Root accessed gained.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5427,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-590.png?w=859" alt="" class="wp-image-5427"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Found a flag in the root folder</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"id":5429,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="https://persecure.files.wordpress.com/2022/09/image-591.png?w=737" alt="" class="wp-image-5429"/></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Flags Obtained</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul><!-- wp:list-item -->
+<li>FLAG{Whoa this is unexpected} - 10 Points</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>FLAG{Yeah d- just don't do it.} - 10 Points</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>FLAG {There is no Zeus, in your face!} - 10 Points</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>FLAG:{TheyFoundMyBackDoorMorty} - 10Points</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>FLAG{Flip the pickle Morty!} - 10 Points</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>FLAG{Get off the high road Summer!} - 10 Points</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>FLAG: {131333} - 20 Points</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>FLAG{And Awwwaaaaayyyy we Go!} - 20 Points</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>FLAG: {Ionic Defibrillator} - 30 points</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
